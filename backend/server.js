@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,16 +16,14 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-// Body Parser
 app.use(bodyParser.json());
 
 // MySQL-Datenbankverbindung
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Oschi.451', // Ersetze mit deinem MySQL-Root-Passwort
-  database: 'player_lounge', // Der Name deiner Datenbank
+  password: 'Oschi.451',
+  database: 'player_lounge',
 });
 
 // Verbindung zur Datenbank herstellen
@@ -34,40 +35,101 @@ db.connect((err) => {
   console.log('Mit der MySQL-Datenbank verbunden.');
 });
 
-// API-Endpunkt für Registrierung
-app.post('/api/register', (req, res) => {
+// Erstelle einen Transporter für den E-Mail-Versand
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Hier den gewünschten E-Mail-Dienst angeben
+  auth: {
+    user: 'kevin.boehning@tn.techstarter.de', // Deine Gmail-Adresse oder SMTP-Daten
+    pass: 'eggx mblp lppw mhug',
+  },
+});
+
+// Registrierung mit E-Mail-Bestätigung
+app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
   }
 
-  // Überprüfen, ob der Benutzer bereits existiert
-  const checkUserQuery = 'SELECT * FROM users WHERE email = ?';
-  db.query(checkUserQuery, [email], (err, result) => {
-    if (err) {
-      console.error('Fehler beim Überprüfen des Benutzers:', err);
-      return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
-    }
+  try {
+    // Generiere ein Bestätigungstoken
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    if (result.length > 0) {
-      return res.status(400).json({ error: 'E-Mail wird bereits verwendet.' });
-    }
+    // Hash das Passwort
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Benutzer in die Datenbank einfügen
-    const insertUserQuery = 'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)';
-    db.query(insertUserQuery, [name, email, password], (err, result) => {
+    // Überprüfe, ob der Benutzername oder die E-Mail bereits existieren
+    const checkUserQuery = 'SELECT * FROM users WHERE email = ? OR name = ?';
+    db.query(checkUserQuery, [email, name], (err, result) => {
       if (err) {
-        console.error('Fehler beim Hinzufügen des Benutzers:', err);
+        console.error("Fehler beim Überprüfen des Benutzers:", err);
         return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
       }
+      if (result.length > 0) {
+        return res.status(400).json({ error: 'Benutzername oder E-Mail wird bereits verwendet.' });
+      }
 
-      res.status(201).json({ message: 'Benutzer erfolgreich registriert!' });
+      // Benutzer in der Datenbank speichern mit dem Bestätigungstoken und dem Verifizierungsstatus
+      const insertUserQuery = 'INSERT INTO users (name, email, password_hash, verification_token, email_verified) VALUES (?, ?, ?, ?, ?)';
+      db.query(insertUserQuery, [name, email, hashedPassword, verificationToken, false], (err) => {
+        if (err) {
+          console.error("Fehler beim Speichern des Benutzers:", err);
+          return res.status(500).json({ error: 'Fehler beim Speichern des Benutzers.' });
+        }
+
+        // Sende die Bestätigungs-E-Mail
+        const confirmationUrl = `http://localhost:3000/verify-email/${verificationToken}`;
+        const mailOptions = {
+          from: 'deine-email@gmail.com',
+          to: email,
+          subject: 'E-Mail Bestätigung',
+          text: `Klicke auf diesen Link, um deine E-Mail-Adresse zu bestätigen: ${confirmationUrl}`,
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error("Fehler beim Senden der Bestätigungs-E-Mail:", err);
+            return res.status(500).json({ error: 'Fehler beim Senden der Bestätigungs-E-Mail.' });
+          }
+          res.status(201).json({ message: 'Registrierung erfolgreich. Bitte überprüfe deine E-Mails, um deine Adresse zu bestätigen.' });
+        });
+      });
+    });
+  } catch (err) {
+    console.error("Fehler beim Registrieren des Benutzers:", err);
+    res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
+  }
+});
+
+// Bestätigungs-Route
+app.get('/api/verify-email/:token', (req, res) => {
+  const { token } = req.params;
+
+  const verifyUserQuery = 'SELECT * FROM users WHERE verification_token = ?';
+  db.query(verifyUserQuery, [token], (err, result) => {
+    if (err || result.length === 0) {
+      return res.status(400).json({ error: 'Ungültiger Bestätigungstoken.' });
+    }
+
+    const user = result[0];
+    if (user.email_verified) {
+      return res.status(400).json({ message: 'Diese E-Mail-Adresse wurde bereits bestätigt.' });
+    }
+
+    // Bestätigung durchführen und Token löschen
+    const updateVerificationQuery = 'UPDATE users SET email_verified = ?, verification_token = NULL WHERE id = ?';
+    db.query(updateVerificationQuery, [true, user.id], (err) => {
+      if (err) {
+        console.error("Fehler bei der Bestätigung der E-Mail:", err);
+        return res.status(500).json({ error: 'Fehler bei der Bestätigung der E-Mail.' });
+      }
+      res.status(200).json({ message: 'E-Mail erfolgreich bestätigt!' });
     });
   });
 });
 
-// API-Endpunkt für Login
+// Login
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -75,18 +137,26 @@ app.post('/api/login', (req, res) => {
     return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
   }
 
-  const getUserQuery = 'SELECT * FROM users WHERE email = ? AND password_hash = ?';
-  db.query(getUserQuery, [email, password], (err, result) => {
+  const getUserQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(getUserQuery, [email], async (err, result) => {
     if (err) {
-      console.error('Fehler beim Abrufen des Benutzers:', err);
       return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
     }
-
     if (result.length === 0) {
-      return res.status(401).json({ error: 'Ungültige E-Mail oder Passwort.' });
+      return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
     }
 
-    res.status(200).json({ message: 'Login erfolgreich!' });
+    const user = result[0];
+    if (!user.email_verified) {
+      return res.status(401).json({ error: 'Bitte bestätige deine E-Mail-Adresse, bevor du dich einloggen kannst.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
+    }
+
+    res.status(200).json({ message: 'Login erfolgreich!', user: { name: user.name, email: user.email } });
   });
 });
 
