@@ -1,0 +1,20 @@
+.email-verification-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    text-align: center;
+  }
+  
+  .email-verification-container h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  
+  .email-verification-container p {
+    font-size: 1.2em;
+    color: #1de9b6;
+  }
+  

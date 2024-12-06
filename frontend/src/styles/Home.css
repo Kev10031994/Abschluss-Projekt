@@ -1,0 +1,92 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.7); /* Schwarzer Overlay */
+  padding: 50px 20px; /* Außenabstand für kleinere Bildschirme */
+}
+
+.home-content {
+  max-width: 900px; /* Mehr Breite für größere Texte */
+  padding: 50px 70px; /* Mehr Innenabstand für großzügigen Look */
+  background: rgba(20, 20, 20, 0.95); /* Dunkler transparenter Hintergrund */
+  border-radius: 15px; /* Weichere Ecken */
+  text-align: center;
+  color: #e0e0e0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.home-content h1 {
+  font-size: 3em; /* Größere Schriftgröße für den Titel */
+  color: #1de9b6; /* Türkisfarbener Titel */
+  margin-bottom: 40px; /* Abstand nach unten */
+}
+
+.home-content p {
+  font-size: 1.4em; /* Größere Schrift für Absätze */
+  line-height: 2; /* Erhöhte Zeilenhöhe für bessere Lesbarkeit */
+  margin: 25px 0; /* Abstand zwischen den Absätzen */
+}
+
+.home-content strong {
+  color: #1de9b6; /* Türkis für Highlights */
+}
+
+.home-content p:last-child {
+  margin-top: 40px; /* Abstand vor dem letzten Absatz */
+  font-weight: bold;
+  font-size: 1.5em; /* Etwas größere Schrift */
+}
+
+/* Neuer Abschnitt: Features */
+.features-section {
+  margin-top: 50px;
+  text-align: left;
+}
+
+.features-section h2 {
+  font-size: 2.5rem;
+  color: #1de9b6;
+  margin-bottom: 20px;
+}
+
+.feature-item {
+  margin-bottom: 30px;
+}
+
+.feature-item h3 {
+  font-size: 2rem;
+  color: #00ffcc;
+}
+
+.feature-item p {
+  font-size: 1.2rem;
+  color: #b0b0b0;
+}
+
+/* Call-to-Action-Section */
+.cta-section {
+  margin-top: 50px;
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  color: #00ffcc;
+}
+
+.cta-button {
+  background-color: #00e5ff; /* Heller Türkis für den Button */
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: background-color 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #00b8b8; /* Dunklerer Türkis beim Hover */
+}

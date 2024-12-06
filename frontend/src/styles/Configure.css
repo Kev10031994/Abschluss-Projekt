@@ -1,0 +1,79 @@
+.configure-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.configure-container h2 {
+  font-size: 1.8rem;
+  color: #00ffcc;
+  margin-bottom: 20px;
+}
+
+.slider-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.slider-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.slider-group span {
+  font-weight: bold;
+  color: #00ffcc;
+}
+
+.slider-group input[type="range"] {
+  width: 100%;
+  appearance: none;
+  background: #333;
+  height: 6px;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.slider-group input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #00ffcc;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
+}
+
+.slider-group input[type="range"]::-webkit-slider-thumb:hover {
+  background-color: #00e5ff;
+}
+
+.configure-container h3 {
+  font-size: 1.5rem;
+  color: #00ffcc;
+  margin-bottom: 20px;
+}
+
+.configure-container button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.configure-container button:hover {
+  background-color: #0056b3;
+}

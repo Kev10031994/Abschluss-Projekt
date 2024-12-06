@@ -1,0 +1,27 @@
+.faq-container {
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-radius: 10px;
+  }
+  
+  .faq-container h2 {
+    text-align: center;
+    color: #00ffcc;
+  }
+  
+  .faq-item {
+    background-color: #333333;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .faq-item h3 {
+    color: #00e5ff;
+  }
+  
+  .faq-item p {
+    color: #cccccc;
+  }
+  

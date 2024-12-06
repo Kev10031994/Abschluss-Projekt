@@ -1,0 +1,25 @@
+.payment-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.payment-container h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #00ffcc;
+}
+
+.payment-container p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+#paypal-button-container {
+  margin-top: 20px;
+}

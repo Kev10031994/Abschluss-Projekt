@@ -1,0 +1,29 @@
+/* src/styles/Impressum.css */
+.page-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    color: white;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #00ffcc;
+    margin-bottom: 20px;
+  }
+  
+  .content-container {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  h2 {
+    color: #00ffcc;
+    margin-top: 20px;
+  }
+  
+  p {
+    margin: 10px 0;
+  }
+  

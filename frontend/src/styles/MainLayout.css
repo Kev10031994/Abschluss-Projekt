@@ -1,0 +1,104 @@
+/* MainLayout.css */
+
+/* Allgemeine Layout-Regeln */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  h1, h2, h3 {
+    color: #00e5ff;
+  }
+  
+  h2 {
+    font-size: 26px;
+  }
+  
+  h3 {
+    font-size: 22px;
+  }
+  
+  /* Navbar-Stile */
+  .navbar {
+    background-color: #00e5ff;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  
+  .navbar a {
+    color: #ffffff;
+    font-size: 18px;
+    padding: 10px 15px;
+    text-decoration: none;
+  }
+  
+  .navbar a:hover {
+    background-color: #00b8cc;
+    border-radius: 5px;
+  }
+  
+  .navbar h1 {
+    font-size: 24px;
+    color: white;
+  }
+  
+  /* Hauptcontainer */
+  .main-container {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Styles für Buttons */
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #00e5ff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #00b8cc;
+  }
+  
+  button:focus {
+    outline: none;
+  }
+  
+  /* Konfiguration */
+  .configure-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .slider-container {
+    margin-bottom: 20px;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  /* Payment */
+  .payment-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
