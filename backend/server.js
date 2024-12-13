@@ -11,19 +11,19 @@ const PORT = process.env.PORT || 5000;
 
 // CORS-Konfiguration
 const corsOptions = {
-  origin: 'http://localhost:3000', // Erlaube Anfragen nur vom Frontend
+  origin: 'http://18.192.68.182', // Erlaube Anfragen nur vom Frontend
   methods: ['GET', 'POST'],
-  credentials: true,
+  credentials: false,
 };
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // MySQL-Datenbankverbindung
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Oschi.451',
-  database: 'player_lounge',
+  host: 'abschluss-projekt-db.crsmyimc66af.eu-central-1.rds.amazonaws.com',
+  user: 'admin',
+  password: 'Fussel10031994,',
+  database: 'Player_Lounge',
 });
 
 // Verbindung zur Datenbank herstellen
@@ -60,19 +60,19 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Überprüfe, ob der Benutzername oder die E-Mail bereits existieren
-    const checkUserQuery = 'SELECT * FROM users WHERE email = ? OR name = ?';
+    const checkUserQuery = 'SELECT * FROM users WHERE email = ? OR username = ?';
     db.query(checkUserQuery, [email, name], (err, result) => {
       if (err) {
         console.error("Fehler beim Überprüfen des Benutzers:", err);
-        return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
+        return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Hab dich lieb :D' });
       }
       if (result.length > 0) {
         return res.status(400).json({ error: 'Benutzername oder E-Mail wird bereits verwendet.' });
       }
 
       // Benutzer in der Datenbank speichern mit dem Bestätigungstoken und dem Verifizierungsstatus
-      const insertUserQuery = 'INSERT INTO users (name, email, password_hash, verification_token, email_verified) VALUES (?, ?, ?, ?, ?)';
-      db.query(insertUserQuery, [name, email, hashedPassword, verificationToken, false], (err) => {
+      const insertUserQuery = 'INSERT INTO users (username, email, password, verification_token, email_verified) VALUES (?, ?, ?, ?, ?)';
+      db.query(insertUserQuery, [ name, email, hashedPassword, verificationToken, false], (err) => {
         if (err) {
           console.error("Fehler beim Speichern des Benutzers:", err);
           return res.status(500).json({ error: 'Fehler beim Speichern des Benutzers.' });
@@ -98,7 +98,7 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (err) {
     console.error("Fehler beim Registrieren des Benutzers:", err);
-    res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
+    res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Der Server will dich nicht :)' });
   }
 });
 
@@ -140,7 +140,7 @@ app.post('/api/login', (req, res) => {
   const getUserQuery = 'SELECT * FROM users WHERE email = ?';
   db.query(getUserQuery, [email], async (err, result) => {
     if (err) {
-      return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen.' });
+      return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Ich hasse dich.' });
     }
     if (result.length === 0) {
       return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
