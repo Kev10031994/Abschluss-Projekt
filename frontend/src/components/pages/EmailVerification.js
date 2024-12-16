@@ -10,7 +10,7 @@ const EmailVerification = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`http://18.153.106.156:5000/api/verify-email/${token}`);
+        const response = await fetch(`http://63.176.70.153:5000/api/verify-email/${token}`);
         const data = await response.json();
         if (response.ok) {
           setMessage(data.message);

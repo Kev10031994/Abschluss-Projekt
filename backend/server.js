@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS-Konfiguration
 const corsOptions = {
-  origin: 'http://18.153.106.156', // Erlaube Anfragen nur vom Frontend
+  origin: 'http://63.176.70.153', // Erlaube Anfragen nur vom Frontend
   methods: ['GET', 'POST'],
   credentials: false,
 };
@@ -79,7 +79,7 @@ app.post('/api/register', async (req, res) => {
         }
 
         // Sende die Bestätigungs-E-Mail
-        const confirmationUrl = `http://18.153.106.156:3000/verify-email/${verificationToken}`;
+        const confirmationUrl = `http://63.176.70.153:3000/verify-email/${verificationToken}`;
         const mailOptions = {
           from: 'deine-email@gmail.com',
           to: email,
@@ -162,5 +162,5 @@ app.post('/api/login', (req, res) => {
 
 // Server starten
 app.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
+  console.log(`Server läuft auf http://63.176.70.153:${PORT}`);
 });

@@ -31,7 +31,7 @@ const LoginRegisterPage = () => {
       }
 
       try {
-        const response = await fetch("http://18.153.106.156:5000/api/register", {
+        const response = await fetch("http://63.176.70.153:5000/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: username, email, password }),
