@@ -18,7 +18,7 @@ variable "player_slots" {
 }
 
 resource "aws_instance" "minecraft_server" {
-  ami           = "ami-xxxxxxxxxxxx" # Deine AMI-ID
+  ami           = "ami-0c55b159cbfafe1f0" # Deine AMI-ID
   instance_type = var.instance_type
   key_name      = "minecraft-keypair" # SSH Key
 
