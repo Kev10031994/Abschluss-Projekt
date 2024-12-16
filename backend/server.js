@@ -79,7 +79,7 @@ app.post('/api/register', async (req, res) => {
         }
 
         // Sende die Bestätigungs-E-Mail
-        const confirmationUrl = `http://localhost:3000/verify-email/${verificationToken}`;
+        const confirmationUrl = `http://18.153.106.156:3000/verify-email/${verificationToken}`;
         const mailOptions = {
           from: 'deine-email@gmail.com',
           to: email,
