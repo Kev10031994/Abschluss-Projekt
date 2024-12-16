@@ -151,7 +151,7 @@ app.post('/api/login', (req, res) => {
       return res.status(401).json({ error: 'Bitte bestätige deine E-Mail-Adresse, bevor du dich einloggen kannst.' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
     }
