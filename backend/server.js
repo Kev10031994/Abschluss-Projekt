@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const { exec } = require("child_process");
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,7 +28,6 @@ const db = mysql.createConnection({
   database: 'Player_Lounge',
 });
 
-// Verbindung zur Datenbank herstellen
 db.connect((err) => {
   if (err) {
     console.error('Datenbankverbindung fehlgeschlagen:', err);
@@ -35,11 +36,11 @@ db.connect((err) => {
   console.log('Mit der MySQL-Datenbank verbunden.');
 });
 
-// Erstelle einen Transporter für den E-Mail-Versand
+// E-Mail-Versand konfigurieren
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Hier den gewünschten E-Mail-Dienst angeben
+  service: 'gmail',
   auth: {
-    user: 'kevin.boehning@tn.techstarter.de', // Deine Gmail-Adresse oder SMTP-Daten
+    user: 'kevin.boehning@tn.techstarter.de',
     pass: 'eggx mblp lppw mhug',
   },
 });
@@ -53,52 +54,34 @@ app.post('/api/register', async (req, res) => {
   }
 
   try {
-    // Generiere ein Bestätigungstoken
     const verificationToken = crypto.randomBytes(32).toString("hex");
-
-    // Hash das Passwort
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Überprüfe, ob der Benutzername oder die E-Mail bereits existieren
     const checkUserQuery = 'SELECT * FROM users WHERE email = ? OR username = ?';
     db.query(checkUserQuery, [email, name], (err, result) => {
-      if (err) {
-        console.error("Fehler beim Überprüfen des Benutzers:", err);
-        return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Hab dich lieb :D' });
-      }
-      if (result.length > 0) {
-        return res.status(400).json({ error: 'Benutzername oder E-Mail wird bereits verwendet.' });
-      }
+      if (err) return res.status(500).json({ error: 'Serverfehler.' });
+      if (result.length > 0) return res.status(400).json({ error: 'Benutzername oder E-Mail wird bereits verwendet.' });
 
-      // Benutzer in der Datenbank speichern mit dem Bestätigungstoken und dem Verifizierungsstatus
       const insertUserQuery = 'INSERT INTO users (username, email, password, verification_token, email_verified) VALUES (?, ?, ?, ?, ?)';
-      db.query(insertUserQuery, [ name, email, hashedPassword, verificationToken, false], (err) => {
-        if (err) {
-          console.error("Fehler beim Speichern des Benutzers:", err);
-          return res.status(500).json({ error: 'Fehler beim Speichern des Benutzers.' });
-        }
+      db.query(insertUserQuery, [name, email, hashedPassword, verificationToken, false], (err) => {
+        if (err) return res.status(500).json({ error: 'Fehler beim Speichern des Benutzers.' });
 
-        // Sende die Bestätigungs-E-Mail
         const confirmationUrl = `http://63.176.70.153/verify-email/${verificationToken}`;
         const mailOptions = {
-          from: 'deine-email@gmail.com',
+          from: 'kevin.boehning@tn.techstarter.de',
           to: email,
           subject: 'E-Mail Bestätigung',
           text: `Klicke auf diesen Link, um deine E-Mail-Adresse zu bestätigen: ${confirmationUrl}`,
         };
 
-        transporter.sendMail(mailOptions, (err, info) => {
-          if (err) {
-            console.error("Fehler beim Senden der Bestätigungs-E-Mail:", err);
-            return res.status(500).json({ error: 'Fehler beim Senden der Bestätigungs-E-Mail.' });
-          }
-          res.status(201).json({ message: 'Registrierung erfolgreich. Bitte überprüfe deine E-Mails, um deine Adresse zu bestätigen.' });
+        transporter.sendMail(mailOptions, (err) => {
+          if (err) return res.status(500).json({ error: 'Fehler beim Senden der Bestätigungs-E-Mail.' });
+          res.status(201).json({ message: 'Registrierung erfolgreich. Bitte bestätige deine E-Mail.' });
         });
       });
     });
   } catch (err) {
-    console.error("Fehler beim Registrieren des Benutzers:", err);
-    res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Der Server will dich nicht :)' });
+    res.status(500).json({ error: 'Serverfehler.' });
   }
 });
 
@@ -108,22 +91,14 @@ app.get('/api/verify-email/:token', (req, res) => {
 
   const verifyUserQuery = 'SELECT * FROM users WHERE verification_token = ?';
   db.query(verifyUserQuery, [token], (err, result) => {
-    if (err || result.length === 0) {
-      return res.status(400).json({ error: 'Ungültiger Bestätigungstoken.' });
-    }
+    if (err || result.length === 0) return res.status(400).json({ error: 'Ungültiger Bestätigungstoken.' });
 
     const user = result[0];
-    if (user.email_verified) {
-      return res.status(400).json({ message: 'Diese E-Mail-Adresse wurde bereits bestätigt.' });
-    }
+    if (user.email_verified) return res.status(400).json({ message: 'E-Mail bereits bestätigt.' });
 
-    // Bestätigung durchführen und Token löschen
     const updateVerificationQuery = 'UPDATE users SET email_verified = ?, verification_token = NULL WHERE id = ?';
     db.query(updateVerificationQuery, [true, user.id], (err) => {
-      if (err) {
-        console.error("Fehler bei der Bestätigung der E-Mail:", err);
-        return res.status(500).json({ error: 'Fehler bei der Bestätigung der E-Mail.' });
-      }
+      if (err) return res.status(500).json({ error: 'Fehler bei der Bestätigung.' });
       res.status(200).json({ message: 'E-Mail erfolgreich bestätigt!' });
     });
   });
@@ -133,30 +108,52 @@ app.get('/api/verify-email/:token', (req, res) => {
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
-  }
+  if (!email || !password) return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
 
   const getUserQuery = 'SELECT * FROM users WHERE email = ?';
   db.query(getUserQuery, [email], async (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: 'Serverfehler. Bitte später erneut versuchen. Ich hasse dich.' });
-    }
-    if (result.length === 0) {
-      return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
-    }
+    if (err) return res.status(500).json({ error: 'Serverfehler.' });
+    if (result.length === 0) return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
 
     const user = result[0];
-    if (!user.email_verified) {
-      return res.status(401).json({ error: 'Bitte bestätige deine E-Mail-Adresse, bevor du dich einloggen kannst.' });
-    }
+    if (!user.email_verified) return res.status(401).json({ error: 'E-Mail nicht bestätigt.' });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
-    }
+    if (!isPasswordValid) return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
 
-    res.status(200).json({ message: 'Login erfolgreich!', user: { name: user.name, email: user.email } });
+    res.status(200).json({ message: 'Login erfolgreich!', user: { name: user.username, email: user.email } });
+  });
+});
+
+// Minecraft-Server starten
+function determineInstanceType(slots) {
+  if (slots <= 5) return "t3.small";
+  if (slots <= 15) return "t3.medium";
+  return "t3.large";
+}
+
+app.post('/api/payment-success', (req, res) => {
+  const { userId, serverName, slots } = req.body;
+  if (!userId || !serverName || !slots) return res.status(400).json({ error: "Ungültige Daten." });
+
+  const instanceType = determineInstanceType(slots);
+  const terraformCommand = `terraform apply -auto-approve -var="user_id=${userId}" -var="instance_type=${instanceType}" -var="player_slots=${slots}"`;
+
+  exec(terraformCommand, (error, stdout) => {
+    if (error) return res.status(500).json({ error: "Terraform-Ausführung fehlgeschlagen." });
+
+    exec("terraform output instance_ip", (err, ipOutput) => {
+      if (err) return res.status(500).json({ error: "IP konnte nicht abgerufen werden." });
+
+      const serverIP = ipOutput.trim();
+      const insertQuery = `INSERT INTO servers (user_id, instance_id, server_name, slots, status, created_at) 
+                           VALUES (?, ?, ?, ?, 'running', NOW())`;
+      db.query(insertQuery, [userId, serverIP, serverName, slots], (dbErr) => {
+        if (dbErr) return res.status(500).json({ error: "Datenbankfehler." });
+
+        res.status(200).json({ message: "Server gestartet!", ip: serverIP });
+      });
+    });
   });
 });
 

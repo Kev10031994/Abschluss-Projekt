@@ -10,8 +10,8 @@ const Payment = () => {
   const paypalButtonRendered = useRef(false);
 
   useEffect(() => {
-    if (!price) {
-      alert("Ungültige Zahlungsdaten. Bitte versuchen Sie es erneut.");
+    if (!price || !serverName || !slots) {
+      alert("Ungültige Konfigurationsdaten. Bitte versuchen Sie es erneut.");
       navigate("/");
       return;
     }
@@ -31,6 +31,7 @@ const Payment = () => {
     const initializePayPalButton = () => {
       if (window.paypal && !paypalButtonRendered.current) {
         paypalButtonRendered.current = true;
+
         window.paypal
           .Buttons({
             createOrder: (data, actions) => {
@@ -47,18 +48,38 @@ const Payment = () => {
               });
             },
             onApprove: (data, actions) => {
-              return actions.order.capture().then((details) => {
-                alert(
-                  `Zahlung erfolgreich abgeschlossen! Vielen Dank, ${details.payer.name.given_name}.`
-                );
-                navigate("/dashboard");
+              return actions.order.capture().then(async (details) => {
+                alert(`Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`);
+
+                try {
+                  // Anfrage an das Backend senden
+                  const response = await fetch("http://63.176.70.153:5000/api/payment-success", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      userId: 1, // Hier dynamisch die Benutzer-ID einfügen
+                      serverName: serverName || "Minecraft-Server",
+                      slots: slots || 10,
+                      storage: storage || 50,
+                    }),
+                  });
+
+                  const result = await response.json();
+                  if (response.ok) {
+                    alert(`Minecraft-Server erfolgreich gestartet! IP-Adresse: ${result.ip}`);
+                    navigate("/dashboard");
+                  } else {
+                    alert(`Fehler: ${result.error}`);
+                  }
+                } catch (err) {
+                  console.error("Fehler beim Starten des Servers:", err);
+                  alert("Ein Fehler ist aufgetreten. Bitte versuche es später erneut.");
+                }
               });
             },
             onError: (err) => {
               console.error("PayPal-Zahlungsfehler:", err);
-              alert(
-                "Es gab ein Problem mit der Zahlung. Bitte versuchen Sie es später erneut."
-              );
+              alert("Es gab ein Problem mit der Zahlung. Bitte versuchen Sie es später erneut.");
             },
           })
           .render("#paypal-button-container");
@@ -66,7 +87,7 @@ const Payment = () => {
     };
 
     addPayPalScript();
-  }, [price, description, serverName, navigate]);
+  }, [price, description, serverName, slots, storage, navigate]);
 
   return (
     <div className="payment-container">
