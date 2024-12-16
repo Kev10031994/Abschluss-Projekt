@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS-Konfiguration
 const corsOptions = {
-  origin: 'http://18.192.68.182', // Erlaube Anfragen nur vom Frontend
+  origin: 'http://18.153.106.156', // Erlaube Anfragen nur vom Frontend
   methods: ['GET', 'POST'],
   credentials: false,
 };
