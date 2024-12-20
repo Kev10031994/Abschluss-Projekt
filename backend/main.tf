@@ -36,7 +36,7 @@ resource "aws_instance" "minecraft_server" {
               wget https://launcher.mojang.com/v1/objects/your_minecraft_server.jar -O minecraft_server.jar
               echo "eula=true" > eula.txt
               echo "max-players=${var.player_slots}" > server.properties
-              nohup java -Xmx2G -Xms1G -jar minecraft_server.jar nogui &
+              nohup java -Xmx1G -Xms512M -jar minecraft_server.jar nogui &
               EOF
 }
 
