@@ -130,9 +130,9 @@ app.post('/api/payment-success', (req, res) => {
       const serverIP = ipOutput.trim();
       const insertQuery = `
         INSERT INTO servers (user_id, instance_id, slots, status, created_at)
-        VALUES (?, ?, ?, ?, 'running', NOW())`;
+        VALUES (?, ?, ?, 'running', NOW())`;
 
-      db.query(insertQuery, [userId, serverIP,  slots, "active", "2025"], (dbErr) => {
+      db.query(insertQuery, [userId, serverIP,  slots], (dbErr) => {
         if (dbErr) {
           console.error('❌ Datenbank Fehler:', dbErr);
           return res.status(500).json({ error: 'Datenbankfehler.' });
