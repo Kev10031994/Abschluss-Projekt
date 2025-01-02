@@ -5,13 +5,13 @@ const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const { exec } = require("child_process");
+const { exec } = require('child_process');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS-Konfiguration
+// 📌 CORS-Konfiguration
 const corsOptions = {
   origin: 'http://63.176.70.153', // Erlaube Anfragen nur vom Frontend
   methods: ['GET', 'POST'],
@@ -20,41 +20,40 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-// MySQL-Datenbankverbindung
+// 📌 MySQL-Datenbankverbindung
 const db = mysql.createConnection({
-  host: 'abschluss-projekt-db.crsmyimc66af.eu-central-1.rds.amazonaws.com',
-  user: 'admin',
-  password: 'Fussel10031994,',
-  database: 'Player_Lounge',
+  host: process.env.DB_HOST || 'abschluss-projekt-db.crsmyimc66af.eu-central-1.rds.amazonaws.com',
+  user: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASSWORD || 'Fussel10031994,',
+  database: process.env.DB_NAME || 'Player_Lounge',
 });
 
 db.connect((err) => {
   if (err) {
-    console.error('Datenbankverbindung fehlgeschlagen:', err);
+    console.error('❌ Datenbankverbindung fehlgeschlagen:', err);
     process.exit(1);
   }
-  console.log('Mit der MySQL-Datenbank verbunden.');
+  console.log('✅ Mit der MySQL-Datenbank verbunden.');
 });
 
-// E-Mail-Versand konfigurieren
+// 📌 E-Mail-Versand konfigurieren
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'kevin.boehning@tn.techstarter.de',
-    pass: 'eggx mblp lppw mhug',
+    user: process.env.EMAIL_USER || 'kevin.boehning@tn.techstarter.de',
+    pass: process.env.EMAIL_PASS || 'eggx mblp lppw mhug',
   },
 });
 
-// Registrierung mit E-Mail-Bestätigung
+// 📌 Registrierung mit E-Mail-Bestätigung
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
-
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
   }
 
   try {
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationToken = crypto.randomBytes(32).toString('hex');
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const checkUserQuery = 'SELECT * FROM users WHERE email = ? OR username = ?';
@@ -68,7 +67,7 @@ app.post('/api/register', async (req, res) => {
 
         const confirmationUrl = `http://63.176.70.153/verify-email/${verificationToken}`;
         const mailOptions = {
-          from: 'kevin.boehning@tn.techstarter.de',
+          from: process.env.EMAIL_USER || 'kevin.boehning@tn.techstarter.de',
           to: email,
           subject: 'E-Mail Bestätigung',
           text: `Klicke auf diesen Link, um deine E-Mail-Adresse zu bestätigen: ${confirmationUrl}`,
@@ -85,7 +84,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Bestätigungs-Route
+// 📌 E-Mail-Bestätigung
 app.get('/api/verify-email/:token', (req, res) => {
   const { token } = req.params;
 
@@ -104,10 +103,9 @@ app.get('/api/verify-email/:token', (req, res) => {
   });
 });
 
-// Login
+// 📌 Login
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
-
   if (!email || !password) return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
 
   const getUserQuery = 'SELECT * FROM users WHERE email = ?';
@@ -125,39 +123,23 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Minecraft-Server starten
-function determineInstanceType(slots) {
-  if (slots <= 5) return "t3.small";
-  if (slots <= 15) return "t3.medium";
-  return "t3.large";
-}
-
+// 📌 Minecraft-Server starten
 app.post('/api/payment-success', (req, res) => {
   const { userId, serverName, slots } = req.body;
-  if (!userId || !serverName || !slots) return res.status(400).json({ error: "Ungültige Daten." });
+  const instanceType = slots <= 5 ? "t3.small" : slots <= 15 ? "t3.medium" : "t3.large";
 
-  const instanceType = determineInstanceType(slots);
-  const terraformCommand = `terraform apply -auto-approve -var="user_id=${userId}" -var="instance_type=${instanceType}" -var="player_slots=${slots}"`;
+  const terraformCommand = `/usr/bin/terraform apply -auto-approve -var="user_id=${userId}" -var="instance_type=${instanceType}" -var="player_slots=${slots}"`;
 
   exec(terraformCommand, (error, stdout) => {
     if (error) return res.status(500).json({ error: "Terraform-Ausführung fehlgeschlagen." });
-
-    exec("terraform output instance_ip", (err, ipOutput) => {
+    exec('/usr/bin/terraform output instance_ip', (err, ipOutput) => {
       if (err) return res.status(500).json({ error: "IP konnte nicht abgerufen werden." });
-
-      const serverIP = ipOutput.trim();
-      const insertQuery = `INSERT INTO servers (user_id, instance_id, server_name, slots, status, created_at) 
-                           VALUES (?, ?, ?, ?, 'running', NOW())`;
-      db.query(insertQuery, [userId, serverIP, serverName, slots], (dbErr) => {
-        if (dbErr) return res.status(500).json({ error: "Datenbankfehler." });
-
-        res.status(200).json({ message: "Server gestartet!", ip: serverIP });
-      });
+      res.status(200).json({ message: "Server gestartet!", ip: ipOutput.trim() });
     });
   });
 });
 
-// Server starten
+// 📌 Server starten
 app.listen(PORT, () => {
-  console.log(`Server läuft auf http://63.176.70.153:${PORT}`);
+  console.log(`✅ Server läuft auf http://63.176.70.153:${PORT}`);
 });
