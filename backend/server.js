@@ -112,7 +112,7 @@ app.post('/api/payment-success', (req, res) => {
     return res.status(400).json({ error: 'Ungültige Daten.' });
   }
 
-  const instanceType = slots <= 5 ? "t3.small" : slots <= 15 ? "t3.medium" : "t3.large";
+  const instanceType = slots <= 15 ? "t3.small" : "t3.large";
   const terraformCommand = `/usr/bin/terraform apply -auto-approve -var="user_id=${userId}" -var="instance_type=${instanceType}" -var="player_slots=${slots}"`;
 
   exec(terraformCommand, (error, stdout, stderr) => {
