@@ -8,9 +8,9 @@ import csgoImage from "../../assets/images/csgo.png";
 import arkImage from "../../assets/images/ark.png";
 
 const serverList = [
-  { id: 1, name: "Minecraft", image: minecraftImage, price: "5.99" },
-  { id: 2, name: "CS:GO", image: csgoImage, price: "7.99" },
-  { id: 3, name: "ARK", image: arkImage, price: "8.99" },
+  { id: 1, name: "Minecraft", image: minecraftImage, price: "Ab 8.00" },
+  { id: 2, name: "CS:GO", image: csgoImage, price: "Ab 8.00" },
+  { id: 3, name: "ARK", image: arkImage, price: "Ab 8.00" },
 ];
 
 const ServerListe = () => {

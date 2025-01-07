@@ -126,7 +126,9 @@ app.post('/api/payment-success', (req, res) => {
         console.error('❌ Fehler beim Abrufen der IP:', err);
         return res.status(500).json({ error: 'IP konnte nicht abgerufen werden.' });
       }
-
+console.log("user_id: "+userId)
+console.log("instance_id: "+instance_id)
+console.log("slots: "+slots)
       const serverIP = ipOutput.trim();
       const insertQuery = `
         INSERT INTO servers (user_id, instance_id, slots, status, created_at)
