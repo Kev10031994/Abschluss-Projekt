@@ -128,9 +128,8 @@ app.post('/api/payment-success', (req, res) => {
       }
       console.log("ipOutput: " + ipOutput)
 console.log("user_id: " + userId)
-console.log("instance_id: " + instance_id)
 console.log("slots: " + slots)
-      const serverIP = ipOutput.trim();
+      const serverIP = ipOutput;
       const insertQuery = `
         INSERT INTO servers (user_id, instance_id, slots, status, created_at)
         VALUES (?, ?, ?, 'running', NOW())`;
