@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Grid, Paper, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+toast.configure();
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [servers, setServers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const servers = []; // Noch keine aktiven Gameclouds
+  // 📌 Server-Daten abrufen
+  const fetchServers = async () => {
+    try {
+      const response = await fetch("http://63.176.70.153:5000/api/servers?userId=2");
+      if (!response.ok) {
+        throw new Error("Fehler beim Laden der Server.");
+      }
+
+      const data = await response.json();
+      console.log("Server-Daten:", data); // Debug-Log
+      setServers(data);
+    } catch (error) {
+      console.error("❌ Fehler beim Laden der Server:", error);
+      toast.error("❌ Fehler beim Laden der Server.", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServers();
+  }, []);
 
   const handleAddServer = () => {
-    navigate("/serverliste"); // Weiterleitung zur Serverliste
+    navigate("/serverliste");
   };
 
   return (
@@ -16,7 +46,7 @@ const Dashboard = () => {
       style={{
         display: "flex",
         height: "100vh",
-        backgroundColor: "rgba(0, 0, 0, 0.6)", // Transparenter Hintergrund
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
         color: "white",
       }}
     >
@@ -24,10 +54,10 @@ const Dashboard = () => {
       <div
         style={{
           width: "250px",
-          backgroundColor: "rgba(0, 0, 0, 0.7)", // Transparente Sidebar
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
           color: "white",
           padding: "20px",
-          borderRight: "1px solid rgba(255, 255, 255, 0.2)", // Trennung zur Hauptseite
+          borderRight: "1px solid rgba(255, 255, 255, 0.2)",
         }}
       >
         <Typography
@@ -70,7 +100,12 @@ const Dashboard = () => {
           Gamecloud Dashboard
         </Typography>
 
-        {servers.length === 0 ? (
+        {/* Ladezustand anzeigen */}
+        {loading ? (
+          <Typography style={{ textAlign: "center", marginTop: "100px" }}>
+            Server werden geladen...
+          </Typography>
+        ) : servers.length === 0 ? (
           <div
             style={{
               display: "flex",
@@ -78,7 +113,7 @@ const Dashboard = () => {
               alignItems: "center",
               justifyContent: "center",
               height: "300px",
-              backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparenter Bereich
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
               borderRadius: "10px",
               color: "white",
             }}
@@ -111,22 +146,21 @@ const Dashboard = () => {
                 <Paper
                   style={{
                     padding: "20px",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparente Karten
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                     color: "white",
-                    border: "1px solid rgba(255, 255, 255, 0.1)", // Dezente Rahmen
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
                   }}
                 >
                   <Typography
                     variant="h6"
                     style={{ fontWeight: "bold", color: "#00ffcc" }}
                   >
-                    {server.name}
+                    {server.instance_id || "Unbekannter Server"}
                   </Typography>
-                  <Typography>Status: {server.status}</Typography>
-                  <Typography>Slots: {server.slots}</Typography>
-                  <Typography>Preis: {server.price} pro Periode</Typography>
+                  <Typography>Status: {server.status || "Unbekannt"}</Typography>
+                  <Typography>Slots: {server.slots || 0}</Typography>
                   <Typography>
-                    Verbleibende Zeit: {server.timeRemaining}
+                    Erstellt am: {new Date(server.created_at).toLocaleString()}
                   </Typography>
                   <div style={{ marginTop: "10px" }}>
                     <Button
@@ -151,7 +185,7 @@ const Dashboard = () => {
                         navigate(`/dashboard/server/${server.id}`)
                       }
                     >
-                      Edit Server
+                      Server bearbeiten
                     </Button>
                   </div>
                 </Paper>

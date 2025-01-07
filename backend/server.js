@@ -23,10 +23,10 @@ app.use(bodyParser.json());
 
 // 📌 MySQL-Datenbankverbindung
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || 'abschluss-projekt-db.crsmyimc66af.eu-central-1.rds.amazonaws.com',
-  user: process.env.DB_USER || 'admin',
-  password: process.env.DB_PASSWORD || 'Fussel10031994,',
-  database: process.env.DB_NAME || 'Player_Lounge',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 db.connect((err) => {
@@ -41,8 +41,8 @@ db.connect((err) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'kevin.boehning@tn.techstarter.de',
-    pass: process.env.EMAIL_PASS || 'eggx mblp lppw mhug',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -66,9 +66,9 @@ app.post('/api/register', async (req, res) => {
       db.query(insertUserQuery, [name, email, hashedPassword, verificationToken, false], (err) => {
         if (err) return res.status(500).json({ error: 'Fehler beim Speichern des Benutzers.' });
 
-        const confirmationUrl = `${process.env.FRONTEND_URL || 'http://63.176.70.153'}/verify-email/${verificationToken}`;
+        const confirmationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
         const mailOptions = {
-          from: process.env.EMAIL_USER || 'kevin.boehning@tn.techstarter.de',
+          from: process.env.EMAIL_USER,
           to: email,
           subject: 'E-Mail Bestätigung',
           text: `Klicke auf diesen Link, um deine E-Mail-Adresse zu bestätigen: ${confirmationUrl}`,
@@ -83,25 +83,6 @@ app.post('/api/register', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Serverfehler.' });
   }
-});
-
-// 📌 E-Mail-Bestätigung
-app.get('/api/verify-email/:token', (req, res) => {
-  const { token } = req.params;
-
-  const verifyUserQuery = 'SELECT * FROM users WHERE verification_token = ?';
-  db.query(verifyUserQuery, [token], (err, result) => {
-    if (err || result.length === 0) return res.status(400).json({ error: 'Ungültiger Bestätigungstoken.' });
-
-    const user = result[0];
-    if (user.email_verified) return res.status(400).json({ message: 'E-Mail bereits bestätigt.' });
-
-    const updateVerificationQuery = 'UPDATE users SET email_verified = ?, verification_token = NULL WHERE id = ?';
-    db.query(updateVerificationQuery, [true, user.id], (err) => {
-      if (err) return res.status(500).json({ error: 'Fehler bei der Bestätigung.' });
-      res.status(200).json({ message: 'E-Mail erfolgreich bestätigt!' });
-    });
-  });
 });
 
 // 📌 Minecraft-Server starten
@@ -122,19 +103,17 @@ app.post('/api/payment-success', (req, res) => {
     }
 
     exec('/usr/bin/terraform output instance_ip', (err, ipOutput) => {
-      if (err) {
-        console.error('❌ Fehler beim Abrufen der IP:', err);
+      if (err || !ipOutput) {
+        console.error('❌ Fehler beim Abrufen der IP:', err || 'Leere IP-Ausgabe');
         return res.status(500).json({ error: 'IP konnte nicht abgerufen werden.' });
       }
-      console.log("ipOutput: " + ipOutput)
-console.log("user_id: " + userId)
-console.log("slots: " + slots)
+
       const serverIP = ipOutput.trim();
       const insertQuery = `
         INSERT INTO servers (user_id, instance_id, slots, status, created_at)
         VALUES (?, ?, ?, 'running', NOW())`;
 
-      db.query(insertQuery, [userId, serverIP,  slots], (dbErr) => {
+      db.query(insertQuery, [userId, serverIP, slots], (dbErr) => {
         if (dbErr) {
           console.error('❌ Datenbank Fehler:', dbErr);
           return res.status(500).json({ error: 'Datenbankfehler.' });
@@ -143,6 +122,26 @@ console.log("slots: " + slots)
         res.status(200).json({ message: 'Server gestartet!', ip: serverIP });
       });
     });
+  });
+});
+
+// 📌 Serverliste abrufen
+app.get('/api/servers', (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'Benutzer-ID erforderlich.' });
+  }
+
+  const getServersQuery = 'SELECT * FROM servers WHERE user_id = ?';
+
+  db.query(getServersQuery, [userId], (err, results) => {
+    if (err) {
+      console.error('❌ Fehler beim Abrufen der Server:', err);
+      return res.status(500).json({ error: 'Fehler beim Abrufen der Server.' });
+    }
+
+    res.status(200).json(results);
   });
 });
 
