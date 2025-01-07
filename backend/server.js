@@ -126,6 +126,7 @@ app.post('/api/payment-success', (req, res) => {
         console.error('❌ Fehler beim Abrufen der IP:', err);
         return res.status(500).json({ error: 'IP konnte nicht abgerufen werden.' });
       }
+      console.log("ipOutput: " + ipOutput)
 console.log("user_id: " + userId)
 console.log("instance_id: " + instance_id)
 console.log("slots: " + slots)
