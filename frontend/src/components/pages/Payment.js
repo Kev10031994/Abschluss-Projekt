@@ -56,6 +56,7 @@ const Payment = () => {
             },
             onApprove: (data, actions) => {
               return actions.order.capture().then(async (details) => {
+                // Zahlung erfolgreich Toast
                 toast.success(`💳 Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`, {
                   position: toast.POSITION.TOP_RIGHT,
                   autoClose: 3000,
@@ -66,7 +67,7 @@ const Payment = () => {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      userId: 2, // Dynamische Benutzer-ID einfügen
+                      userId: 2,
                       serverName: serverName || "Minecraft-Server",
                       slots: slots || 10,
                       storage: storage || 50,
@@ -75,12 +76,14 @@ const Payment = () => {
 
                   const result = await response.json();
                   if (response.ok) {
-                    toast.success(`🎮 Minecraft-Server erfolgreich gestartet! IP-Adresse: ${result.ip}`, {
+                    // Server gestartet Toast
+                    toast.success(`🎮 Minecraft-Server erfolgreich gestartet! IP: ${result.ip}`, {
                       position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
                     });
                     navigate("/dashboard");
                   } else {
+                    // Fehler Toast
                     toast.error(`❌ Fehler: ${result.error}`, {
                       position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
