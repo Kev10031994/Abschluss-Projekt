@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../../styles/Payment.css";
+
+toast.configure();
 
 const Payment = () => {
   const location = useLocation();
@@ -11,7 +15,10 @@ const Payment = () => {
 
   useEffect(() => {
     if (!price || !serverName || !slots) {
-      alert("Ungültige Konfigurationsdaten. Bitte versuchen Sie es erneut.");
+      toast.error("❌ Ungültige Konfigurationsdaten. Bitte versuchen Sie es erneut.", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
       navigate("/");
       return;
     }
@@ -49,15 +56,17 @@ const Payment = () => {
             },
             onApprove: (data, actions) => {
               return actions.order.capture().then(async (details) => {
-                alert(`Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`);
+                toast.success(`💳 Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`, {
+                  position: toast.POSITION.TOP_RIGHT,
+                  autoClose: 3000,
+                });
 
                 try {
-                  // Anfrage an das Backend senden
                   const response = await fetch("http://63.176.70.153:5000/api/payment-success", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      userId: 2, // Hier dynamisch die Benutzer-ID einfügen
+                      userId: 2, // Dynamische Benutzer-ID einfügen
                       serverName: serverName || "Minecraft-Server",
                       slots: slots || 10,
                       storage: storage || 50,
@@ -66,20 +75,32 @@ const Payment = () => {
 
                   const result = await response.json();
                   if (response.ok) {
-                    alert(`Minecraft-Server erfolgreich gestartet! IP-Adresse: ${result.ip}`);
+                    toast.success(`🎮 Minecraft-Server erfolgreich gestartet! IP-Adresse: ${result.ip}`, {
+                      position: toast.POSITION.TOP_RIGHT,
+                      autoClose: 3000,
+                    });
                     navigate("/dashboard");
                   } else {
-                    alert(`Fehler: ${result.error}`);
+                    toast.error(`❌ Fehler: ${result.error}`, {
+                      position: toast.POSITION.TOP_RIGHT,
+                      autoClose: 3000,
+                    });
                   }
                 } catch (err) {
                   console.error("Fehler beim Starten des Servers:", err);
-                  alert("Ein Fehler ist aufgetreten. Bitte versuche es später erneut.");
+                  toast.error("❌ Ein Fehler ist aufgetreten. Bitte versuche es später erneut.", {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                  });
                 }
               });
             },
             onError: (err) => {
               console.error("PayPal-Zahlungsfehler:", err);
-              alert("Es gab ein Problem mit der Zahlung. Bitte versuchen Sie es später erneut.");
+              toast.error("❌ Es gab ein Problem mit der Zahlung. Bitte versuchen Sie es später erneut.", {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+              });
             },
           })
           .render("#paypal-button-container");
