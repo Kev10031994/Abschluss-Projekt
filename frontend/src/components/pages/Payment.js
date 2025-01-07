@@ -57,7 +57,7 @@ const Payment = () => {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      userId: 1, // Hier dynamisch die Benutzer-ID einfügen
+                      userId: 2, // Hier dynamisch die Benutzer-ID einfügen
                       serverName: serverName || "Minecraft-Server",
                       slots: slots || 10,
                       storage: storage || 50,
