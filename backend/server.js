@@ -103,6 +103,25 @@ app.get('/api/verify-email/:token', (req, res) => {
     });
   });
 });
+// 📌 Login
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
+
+  const getUserQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(getUserQuery, [email], async (err, result) => {
+    if (err) return res.status(500).json({ error: 'Serverfehler.' });
+    if (result.length === 0) return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
+
+    const user = result[0];
+    if (!user.email_verified) return res.status(401).json({ error: 'E-Mail nicht bestätigt.' });
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ error: 'Ungültige Zugangsdaten.' });
+
+    res.status(200).json({ message: 'Login erfolgreich!', user: { name: user.username, email: user.email } });
+  });
+});
 
 // 📌 Minecraft-Server starten
 app.post('/api/payment-success', (req, res) => {
