@@ -58,8 +58,8 @@ const LoginRegisterPage = () => {
       try {
         const success = await login(email, password);
         if (!success) {
-          setErrorMessage("Benutzername oder Passwort ist falsch!");
-          toast.error("Benutzername oder Passwort ist falsch!");
+          setErrorMessage("E-Mail Adresse oder Passwort ist falsch!");
+          toast.error("E-Mail Adresse oder Passwort ist falsch!");
         } else {
           const redirectPath = location.state?.from || "/dashboard"; // Weiterleitung nach Login
           toast.success("Login erfolgreich!");
