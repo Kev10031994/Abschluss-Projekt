@@ -1,11 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Grid, Paper, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [servers, setServers] = useState([]); // State für Serverdaten
+  const [loading, setLoading] = useState(true); // Ladezustand
 
-  const servers = []; // Noch keine aktiven Gameclouds
+  // Serverdaten abrufen
+  useEffect(() => {
+    const fetchServers = async () => {
+      try {
+        const response = await fetch("/api/servers");
+        if (!response.ok) throw new Error("Fehler beim Abrufen der Serverdaten");
+        const data = await response.json();
+        setServers(data);
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServers();
+  }, []);
 
   const handleAddServer = () => {
     navigate("/serverliste"); // Weiterleitung zur Serverliste
@@ -70,7 +88,9 @@ const Dashboard = () => {
           Gamecloud Dashboard
         </Typography>
 
-        {servers.length === 0 ? (
+        {loading ? (
+          <Typography style={{ color: "white" }}>Lade Serverdaten...</Typography>
+        ) : servers.length === 0 ? (
           <div
             style={{
               display: "flex",
@@ -107,7 +127,7 @@ const Dashboard = () => {
         ) : (
           <Grid container spacing={2}>
             {servers.map((server) => (
-              <Grid item xs={12} md={6} key={server.id}>
+              <Grid item xs={12} md={6} key={server.instance_id}>
                 <Paper
                   style={{
                     padding: "20px",
@@ -120,14 +140,11 @@ const Dashboard = () => {
                     variant="h6"
                     style={{ fontWeight: "bold", color: "#00ffcc" }}
                   >
-                    {server.name}
+                    {server.name || "Unbenannter Server"}
                   </Typography>
                   <Typography>Status: {server.status}</Typography>
                   <Typography>Slots: {server.slots}</Typography>
-                  <Typography>Preis: {server.price} pro Periode</Typography>
-                  <Typography>
-                    Verbleibende Zeit: {server.timeRemaining}
-                  </Typography>
+                  <Typography>Erstellt am: {server.created_at}</Typography>
                   <div style={{ marginTop: "10px" }}>
                     <Button
                       variant="contained"
@@ -148,7 +165,7 @@ const Dashboard = () => {
                         fontWeight: "bold",
                       }}
                       onClick={() =>
-                        navigate(`/dashboard/server/${server.id}`)
+                        navigate(`/dashboard/server/${server.instance_id}`)
                       }
                     >
                       Edit Server

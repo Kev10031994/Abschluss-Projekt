@@ -165,6 +165,20 @@ console.log("slots: " + slots)
   });
 });
 
+// 📌 Serverdaten abrufen
+app.get('/api/servers', (req, res) => {
+  const getServersQuery = 'SELECT * FROM servers WHERE status = "running"';
+
+  db.query(getServersQuery, (err, result) => {
+    if (err) {
+      console.error('❌ Fehler beim Abrufen der Serverdaten:', err);
+      return res.status(500).json({ error: 'Fehler beim Abrufen der Serverdaten.' });
+    }
+
+    res.status(200).json(result);
+  });
+});
+
 // 📌 Server starten
 app.listen(PORT, () => {
   console.log(`✅ Server läuft auf http://63.176.70.153:${PORT}`);
