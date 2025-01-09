@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/Payment.css";
-
-toast.configure();
 
 const Payment = () => {
   const location = useLocation();
@@ -125,6 +123,7 @@ const Payment = () => {
       )}
       <p>Gesamtpreis: {price ? price.toFixed(2) : "Ungültig"} €</p>
       <div id="paypal-button-container"></div>
+      <ToastContainer />
     </div>
   );
 };
