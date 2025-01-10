@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/Payment.css";
 
@@ -62,7 +62,7 @@ const Payment = () => {
             onApprove: (data, actions) => {
               return actions.order.capture().then(async (details) => {
                 toast.success(`💳 Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`, {
-                  position: toast.POSITION.TOP_RIGHT,
+//                  position: toast.POSITION.TOP_RIGHT,
                   autoClose: 3000,
                 });
 
@@ -127,7 +127,6 @@ const Payment = () => {
       )}
       <p>Gesamtpreis: {price ? price.toFixed(2) : "Ungültig"} €</p>
       <div id="paypal-button-container"></div>
-      <ToastContainer />
     </div>
   );
 };
