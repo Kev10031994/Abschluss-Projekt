@@ -22,4 +22,36 @@
 
 #paypal-button-container {
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.Toastify__toast--success {
+  background-color: #00ffcc; /* Erfolgsnachricht */
+  color: #101014;
+}
+
+.Toastify__toast--error {
+  background-color: #ff4d4d; /* Fehlernachricht */
+  color: white;
+}
+
+.Toastify__toast--info {
+  background-color: #007bff; /* Info-Nachricht */
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .payment-container {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .payment-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .payment-container p {
+    font-size: 1rem;
+  }
 }

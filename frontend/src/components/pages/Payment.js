@@ -27,6 +27,13 @@ const Payment = () => {
         script.id = "paypal-script";
         script.src = `https://www.paypal.com/sdk/js?client-id=AYNnPC4dbylqMpe_t3sS3BjhLtQSmWj6i8-IY2hABO_rCX2Ne_NO_FEU1RjA2PxJiEDnhnyMTw69rPBU&currency=EUR`;
         script.onload = () => initializePayPalButton();
+        script.onerror = () => {
+          console.error("❌ Fehler beim Laden des PayPal-Scripts");
+          toast.error("❌ PayPal konnte nicht geladen werden.", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+        };
         document.body.appendChild(script);
       } else {
         initializePayPalButton();
@@ -54,7 +61,6 @@ const Payment = () => {
             },
             onApprove: (data, actions) => {
               return actions.order.capture().then(async (details) => {
-                // Zahlung erfolgreich Toast
                 toast.success(`💳 Zahlung erfolgreich! Vielen Dank, ${details.payer.name.given_name}.`, {
                   position: toast.POSITION.TOP_RIGHT,
                   autoClose: 3000,
@@ -74,14 +80,12 @@ const Payment = () => {
 
                   const result = await response.json();
                   if (response.ok) {
-                    // Server gestartet Toast
                     toast.success(`🎮 Minecraft-Server erfolgreich gestartet! IP: ${result.ip}`, {
                       position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
                     });
                     navigate("/dashboard");
                   } else {
-                    // Fehler Toast
                     toast.error(`❌ Fehler: ${result.error}`, {
                       position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
