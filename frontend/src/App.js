@@ -10,7 +10,7 @@ import LoginRegisterPage from "./components/pages/LoginRegisterPage";
 import Profile from "./components/pages/Profile";
 import AccountSettings from "./components/pages/AccountSettings";
 import Payment from "./components/pages/Payment";
-import EditServer from "./EditServer";
+import EditServer from "./components/pages/EditServer";
 import NotFound from "./components/pages/NotFound";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import Impressum from "./components/pages/Impressum"; // Neue Seite für Impressum
