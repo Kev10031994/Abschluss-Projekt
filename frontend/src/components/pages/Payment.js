@@ -14,7 +14,7 @@ const Payment = () => {
   useEffect(() => {
     if (!price || !serverName || !slots) {
       toast.error("❌ Ungültige Konfigurationsdaten. Bitte versuchen Sie es erneut.", {
-        position: toast.POSITION.TOP_RIGHT,
+//        position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
       });
       navigate("/");
@@ -30,7 +30,7 @@ const Payment = () => {
         script.onerror = () => {
           console.error("❌ Fehler beim Laden des PayPal-Scripts");
           toast.error("❌ PayPal konnte nicht geladen werden.", {
-            position: toast.POSITION.TOP_RIGHT,
+//            position: toast.POSITION.TOP_RIGHT,
             autoClose: 3000,
           });
         };
@@ -81,20 +81,20 @@ const Payment = () => {
                   const result = await response.json();
                   if (response.ok) {
                     toast.success(`🎮 Minecraft-Server erfolgreich gestartet! IP: ${result.ip}`, {
-                      position: toast.POSITION.TOP_RIGHT,
+//                      position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
                     });
                     navigate("/dashboard");
                   } else {
                     toast.error(`❌ Fehler: ${result.error}`, {
-                      position: toast.POSITION.TOP_RIGHT,
+//                      position: toast.POSITION.TOP_RIGHT,
                       autoClose: 3000,
                     });
                   }
                 } catch (err) {
                   console.error("Fehler beim Starten des Servers:", err);
                   toast.error("❌ Ein Fehler ist aufgetreten. Bitte versuche es später erneut.", {
-                    position: toast.POSITION.TOP_RIGHT,
+//                    position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                   });
                 }
@@ -103,7 +103,7 @@ const Payment = () => {
             onError: (err) => {
               console.error("PayPal-Zahlungsfehler:", err);
               toast.error("❌ Es gab ein Problem mit der Zahlung. Bitte versuchen Sie es später erneut.", {
-                position: toast.POSITION.TOP_RIGHT,
+//                position: toast.POSITION.TOP_RIGHT,
                 autoClose: 3000,
               });
             },
