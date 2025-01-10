@@ -10,6 +10,7 @@ import LoginRegisterPage from "./components/pages/LoginRegisterPage";
 import Profile from "./components/pages/Profile";
 import AccountSettings from "./components/pages/AccountSettings";
 import Payment from "./components/pages/Payment";
+import EditServer from "./EditServer";
 import NotFound from "./components/pages/NotFound";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import Impressum from "./components/pages/Impressum"; // Neue Seite für Impressum
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/impressum" element={<Impressum />} /> {/* Neue Route für Impressum */}
         <Route path="/faq" element={<FAQ />} /> {/* Neue Route für FAQ */}
         <Route path="/verify-email/:token" element={<EmailVerification />} /> {/* Route für E-Mail-Verifizierung */}
+        <Route path="/edit-server/:id" element={<EditServer />} />
         <Route path="*" element={<NotFound />} />
 
         {/* Geschützte Routen */}
