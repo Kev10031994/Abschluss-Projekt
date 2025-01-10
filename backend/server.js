@@ -183,3 +183,42 @@ app.get('/api/servers', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server läuft auf http://63.176.70.153:${PORT}`);
 });
+
+// 📌 Serverdetails abrufen
+app.get('/api/servers/:id', (req, res) => {
+  const { id } = req.params;
+
+  const getServerQuery = 'SELECT * FROM servers WHERE id = ?';
+  db.query(getServerQuery, [id], (err, result) => {
+    if (err || result.length === 0) {
+      console.error('❌ Fehler beim Abrufen der Serverdetails:', err);
+      return res.status(404).json({ error: 'Server nicht gefunden.' });
+    }
+
+    res.status(200).json(result[0]);
+  });
+});
+
+// 📌 Server aktualisieren
+app.put('/api/servers/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, slots, storage } = req.body;
+
+  if (!name || !slots || !storage) {
+    return res.status(400).json({ error: 'Bitte alle Felder ausfüllen.' });
+  }
+
+  const updateServerQuery = `
+    UPDATE servers 
+    SET name = ?, slots = ?, storage = ? 
+    WHERE id = ?`;
+
+  db.query(updateServerQuery, [name, slots, storage, id], (err) => {
+    if (err) {
+      console.error('❌ Fehler beim Aktualisieren des Servers:', err);
+      return res.status(500).json({ error: 'Fehler beim Aktualisieren.' });
+    }
+
+    res.status(200).json({ message: 'Server erfolgreich aktualisiert.' });
+  });
+});
