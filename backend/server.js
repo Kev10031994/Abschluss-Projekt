@@ -165,7 +165,6 @@ console.log("slots: " + slots)
   });
 });
 
-
 // 📌 Server starten
 app.listen(PORT, () => {
   console.log(`✅ Server läuft auf http://63.176.70.153:${PORT}`);
