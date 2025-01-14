@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/Configure.css";
 
@@ -7,18 +7,11 @@ const Configure = () => {
   const navigate = useNavigate();
   const { serverName } = location.state || { serverName: "Unbekannt" };
 
-  const [slots, setSlots] = useState(50);
-  const [storage, setStorage] = useState(50);
-  const [price, setPrice] = useState(0); // Preis im Zustand speichern
-
+  const [slots, setSlots] = React.useState(50);
+  const [storage, setStorage] = React.useState(50);
   const pricePerSlot = 0.5;
   const pricePerGB = 0.3;
-
-  // Preis bei Änderungen von Slots oder Storage neu berechnen
-  useEffect(() => {
-    const newPrice = slots * pricePerSlot + storage * pricePerGB;
-    setPrice(newPrice);
-  }, [slots, storage]);
+  const price = slots * pricePerSlot + storage * pricePerGB;
 
   const handlePayment = () => {
     navigate("/payment", {
