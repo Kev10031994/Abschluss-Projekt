@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/Configure.css";
 
@@ -7,13 +7,19 @@ const Configure = () => {
   const navigate = useNavigate();
   const { serverName } = location.state || { serverName: "Unbekannt" };
 
-  const [slots, setSlots] = React.useState(50);
-  const [storage, setStorage] = React.useState(50);
+  const [slots, setSlots] = useState(50);
+  const [storage, setStorage] = useState(50);
+
   const pricePerSlot = 0.5;
   const pricePerGB = 0.3;
-  const price = slots * pricePerSlot + storage * pricePerGB;
+
+  // Berechne den Preis dynamisch basierend auf den aktuellen Werten
+  const calculatePrice = () => {
+    return slots * pricePerSlot + storage * pricePerGB;
+  };
 
   const handlePayment = () => {
+    const price = calculatePrice();
     navigate("/payment", {
       state: { price, serverName, slots, storage },
     });
@@ -48,7 +54,7 @@ const Configure = () => {
           onChange={(e) => setStorage(parseInt(e.target.value, 10))}
         />
       </div>
-      <h3>Preis: {price.toFixed(2)} €/Monat</h3>
+      <h3>Preis: {calculatePrice().toFixed(2)} €/Monat</h3>
       <button onClick={handlePayment}>Zur Zahlung</button>
     </div>
   );
