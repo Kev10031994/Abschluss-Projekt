@@ -9,7 +9,7 @@ const Impressum = () => {
       <div className="content-container">
         <h2>Angaben gemäß § 5 TMG</h2>
         <p>Player Lounge GmbH</p>
-        <p>Adresse: Mühlenschlad 25, 58791 Werdohl</p>
+        <p>Adresse: Hammerstraße 19, 58791 Werdohl</p>
         <p>Vertreten durch: Kevin Böhning</p>
         <h2>Kontakt</h2>
         <p>Telefon: +17631655899</p>
