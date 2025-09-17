@@ -12,7 +12,7 @@ const Impressum = () => {
         <p>Adresse: Hammerstraße 19, 58791 Werdohl</p>
         <p>Vertreten durch: Kevin Böhning</p>
         <h2>Kontakt</h2>
-        <p>Telefon: +17631655899</p>
+        <p>Telefon: +4917631655899</p>
         <p>E-Mail: service@player-lounge.de</p>
         <h2>Umsatzsteuer-ID</h2>
         <p>USt-IdNr.: DE123456789</p>
